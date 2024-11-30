@@ -80,6 +80,7 @@ uploaded_file = st.file_uploader("Escolha um arquivo PDF para servir de contexto
 # Processar arquivo enviado e gerar contexto
 uploaded_text = ""
 if uploaded_file is not None:
+    st.write(f"file: {uploaded_file}")
     with st.spinner("Por favor, aguarde enquanto o texto é extraído..."):
         try:
             uploaded_text = extract_text_from_pdf(uploaded_file)
