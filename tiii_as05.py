@@ -74,6 +74,7 @@ uploaded_file = st.file_uploader("Escolha um arquivo PDF para servir de contexto
 if uploaded_file is not None:
     with st.spinner("Por favor, aguarde enquanto o texto é extraído..."):
         try:
+            print(uploaded_file)
             uploaded_text = extract_text_from_pdf(uploaded_file)
             if not uploaded_text:
                 st.error("Falha ao extrair texto do PDF.")
@@ -88,6 +89,7 @@ if uploaded_file is not None:
     if st.button("Enviar"):
         with st.spinner("Por favor, aguarde enquanto a resposta é gerada..."):
             try:
+                print(question)
                 answer = answer_question(context, question)
                 st.write(answer)
             except Exception as e:
