@@ -72,6 +72,7 @@ def answer_question(context, question):
     return response.json()["choices"][0]["message"]["content"]
 
 st.title("Assistente Conversacional PDFbot")
+st.write("Aluno: Luís Fillipe Magalhães Conrado Pereira")
 st.write("""
 Bem-vindo ao PDFbot! Este assistente conversacional responde perguntas com base no contexto fornecido por um arquivo PDF. 
 Em nossa base de dados, temos um artigo em PDF sobre Modelos de Linguagem de Grande Escala (LLMs). 
