@@ -16,12 +16,14 @@ if not grok_key:
 
 # Função que recebe o file_path e realiza a leitura do arquivo PDF
 def read_pdf_from_directory(file_path):
+    st.write(f"read_pdf_from_directory: {file_path}")
     # Verifica se o arquivo existe no diretório fornecido
     if os.path.exists(file_path):
-        print(f"Arquivo encontrado: {file_path}")
+        st.write(f"Arquivo encontrado: {file_path}")
         return extract_text_from_pdf(file_path)
     else:
-        raise FileNotFoundError(f"O arquivo {file_path} não foi encontrado.")
+        st.error(f"O arquivo {file_path} não foi encontrado. {e}")
+        st.stop()
 
 # Função para extrair texto de PDFs
 def extract_text_from_pdf(file):
