@@ -1,23 +1,8 @@
-# Instalar dependências necessárias
-!pip install arxiv PyPDF2 sentence-transformers faiss-cpu
-!pip install -q -U google-generativeai
-
-
-
-# Importar bibliotecas
-import arxiv
-import os
-from PyPDF2 import PdfReader
-from sentence_transformers import SentenceTransformer
-import faiss
+import streamlit as st
+from langchain_community.document_loaders import PyPDFLoader
 import requests
-import pathlib
-import textwrap
-import google.generativeai as genai
-from IPython.display import display, Markdown
-from google.colab import userdata
-
-
+import os
+import arxiv
 
 # Diretório para armazenar os artigos
 os.makedirs("arxiv_pdfs", exist_ok=True)
@@ -48,15 +33,6 @@ def extract_text_from_pdf(pdf_path):
         print(f"Erro ao processar {pdf_path}: {e}")
     return text
 
-# Função para indexar os textos
-def index_texts(texts):
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-    embeddings = model.encode(texts, show_progress_bar=True)
-    dimension = embeddings.shape[1]
-    index = faiss.IndexFlatL2(dimension)
-    index.add(embeddings)
-    return index, embeddings
-
 # Buscar e processar artigos
 fetch_arxiv_articles("Large Language Models", max_results=5)
 
@@ -67,44 +43,69 @@ for file in os.listdir("arxiv_pdfs"):
     text = extract_text_from_pdf(path)
     documents.append(text)
 
-# Indexar os documentos
-index, embeddings = index_texts(documents)
-
 print("Artigos baixados, processados e indexados com sucesso!")
-
-def to_markdown(text):
-  text = text.replace('•', '  *')
-  return Markdown(textwrap.indent(text, '> ', predicate=lambda _: True))
-
-# Used to securely store your API key
-# Or use `os.getenv('GOOGLE_API_KEY')` to fetch an environment variable.
-GOOGLE_API_KEY=userdata.get('GOOGLE_API_KEY')
-
-genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel('gemini-1.5-flash')
-
-def search_articles(query, index, embeddings, documents, top_k=5):
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-    query_embedding = model.encode([query])
-    distances, indices = index.search(query_embedding, top_k)
-    return [documents[i] for i in indices[0]]
 
 # Função para responder perguntas usando o modelo Gemini
 def answer_question(question):
-    relevant_articles = search_articles(question, index, embeddings, documents)
-    context = "\n\n".join(relevant_articles)
-    response = model.generate_content('context: ' + context + ' QUESTION: ' + question)
-    return response
+    prompt = f"Responda à pergunta descrita após a tag **Pergunta:** com base no texto dentro da tag **Contexto:**\n\n**Contexto:** {context}\n\n**Pergunta:** {question}\n\n**Resposta:**"
+    
+    response = requests.post(
+        "https://api.groq.com/openai/v1/chat/completions",
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {grok_key}"
+        },
+        json={
+            "model": "llama3-8b-8192",
+            "messages": [{
+                "role": "system",
+                "content": "Assistente conversacional para responder perguntas baseadas em um contexto. É necessário que ao finalizar uma pergunte, se disponha a responder mais alguma pergunta sobre algum novo PDF ou sobre o pdf que foi feito o upload."
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }]
+        }
+    )
+    print(response.json())
+    return response.json()["choices"][0]["message"]["content"]
 
-perguntas = [
-    "Qual é a principal aplicação dos LLMs no contexto de conteúdo não-inglês?",
-    "Como os LLMs lidam com idiomas que possuem menos dados de treinamento?",
-    "Como o modelo Cedille se diferencia de outros LLMs?",
-    "Quais são os principais benefícios de treinar modelos monolíngues para um grande número de idiomas?",
-]
+st.title("Assistente Conversacional PDFbot")
+st.write("""
+Bem-vindo ao PDFbot! Este assistente conversacional responde perguntas com base no contexto fornecido por um arquivo PDF. 
+Em nossa base de dados, temos 5 artigos em PDF sobre Modelos de Linguagem de Grande Escala (LLMs). 
+Você pode fazer upload de um arquivo PDF para fornecer um contexto ou fazer perguntas diretamente sobre os artigos disponíveis.
+""")
+st.write("""
+Os artigos disponíveis são:
+1. Lost in Translation: Large Language Models in Non-English Content Analysis
+2. Cedille: A large autoregressive French language model
+3. How Good are Commercial Large Language Models on African Languages?
+4. Goldfish: Monolingual Language Models for 350 Languages
+5. Modelling Language
+""")
 
-for pergunta in perguntas:
-    print(f"Pergunta: {pergunta}")
-    resposta = answer_question(pergunta)
-    resposta = to_markdown(resposta.text)
-    display(resposta)
+# Definindo o contexto a partir do envio de um arquivo PDF
+
+uploaded_file = st.file_uploader("Escolha um arquivo PDF para servir de contexto para a LLM. Tenha em mente que arquivos muito extensos não serão aceitos.", type="pdf")
+
+    if uploaded_file is not None:
+        with st.spinner("Por favor, aguarde enquanto o texto é extraído..."):
+            try:
+                text = pdf_to_txt(uploaded_file)
+                if not text:
+                    st.error("Falha ao extrair texto do PDF.")
+                    return
+            except Exception as e:
+                st.error(f"Erro ao extrair texto do PDF: {e}")
+                return
+
+        question = st.text_input("Possui alguma pergunta em mente?")
+
+        if st.button("Enviar"):
+            with st.spinner("Por favor, aguarde enquanto a resposta é gerada..."):
+                try:
+                    answer = ask_question(text, question)
+                    st.write(answer)
+                except Exception as e:
+                    st.error(f"Erro ao gerar resposta: {e}")
