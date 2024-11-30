@@ -79,7 +79,7 @@ Você pode fazer upload de um arquivo PDF para fornecer um contexto ou fazer per
 """)
 st.write("""
 Os artigos disponíveis são:
-1. Diversidade Linguística e Inclusão Digital: Desafios para uma IA brasileira
+1. Exercicio de Etica e moralidade
 """)
 
 st.write("""
