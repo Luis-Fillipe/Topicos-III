@@ -15,31 +15,6 @@ grok_key = os.getenv("GROK_KEY")
 if not grok_key:
     raise ValueError("API key not found. Please add it to the .env file following the format GROK_KEY=\"your_key_here\".")
 
-# Diretório para armazenar os artigos
-os.makedirs("arxiv_pdfs", exist_ok=True)
-
-# Função para buscar e baixar artigos no arXiv
-def fetch_arxiv_articles(query, max_results=5):
-    search = arxiv.Search(
-        query=query,
-        max_results=max_results,
-        sort_by=arxiv.SortCriterion.Relevance
-    )
-
-    # Diretório para salvar PDFs
-    os.makedirs("arxiv_pdfs", exist_ok=True)
-
-    for result in search.results():
-        title = result.title.replace(" ", "_").replace("/", "_")
-        pdf_path = os.path.join("arxiv_pdfs", f"{title}.pdf")
-        print(f"Baixando: {title}")
-        response = requests.get(result.pdf_url)
-        if response.status_code == 200:
-            with open(pdf_path, "wb") as f:
-                f.write(response.content)
-        else:
-            print(f"Erro ao baixar {result.title}: Status {response.status_code}")
-
 # Função para extrair texto de PDFs
 def extract_text_from_pdf(pdf_path):
     text = ""
@@ -51,22 +26,10 @@ def extract_text_from_pdf(pdf_path):
         print(f"Erro ao processar {pdf_path}: {e}")
     return text
 
-# Buscar e processar artigos
-fetch_arxiv_articles("Large Language Models", max_results=5)
-
-# Processar os PDFs baixados
-documents = []
-for file in os.listdir("arxiv_pdfs"):
-    path = os.path.join("arxiv_pdfs", file)
-    text = extract_text_from_pdf(path)
-    documents.append(text)
-
-print("Artigos baixados, processados e indexados com sucesso!")
-
 # Função para responder perguntas usando o modelo Gemini
 def answer_question(context, question):
     prompt = f"Responda à pergunta descrita após a tag **Pergunta:** com base no texto dentro da tag **Contexto:**\n\n**Contexto:** {context}\n\n**Pergunta:** {question}\n\n**Resposta:**"
-    print("DENTRO DO answer_question")
+    
     response = requests.post(
         "https://api.groq.com/openai/v1/chat/completions",
         headers={
@@ -85,8 +48,6 @@ def answer_question(context, question):
             }]
         }
     )
-    
-    print(response)
     return response.json()["choices"][0]["message"]["content"]
 
 st.title("Assistente Conversacional PDFbot")
@@ -98,12 +59,15 @@ Você pode fazer upload de um arquivo PDF para fornecer um contexto ou fazer per
 st.write("""
 Os artigos disponíveis são:
 1. Lost in Translation: Large Language Models in Non-English Content Analysis
-2. Diversidade Linguística e Inclusão Digital: Desafios para uma IA brasileira
+2. Cedille: A large autoregressive French language model
+3. How Good are Commercial Large Language Models on African Languages?
+4. Goldfish: Monolingual Language Models for 350 Languages
+5. Modelling Language
 """)
 
-uploaded_file = st.file_uploader("Escolha um arquivo PDF para servir de contexto para a LLM. Tenha em mente que arquivos muito extensos não serão aceitos.", type="pdf")
-
 question = st.text_input("Possui alguma pergunta em mente?")
+
+uploaded_file = st.file_uploader("Escolha um arquivo PDF para servir de contexto para a LLM. Tenha em mente que arquivos muito extensos não serão aceitos.", type="pdf")
 
 if uploaded_file is not None:
     with st.spinner("Por favor, aguarde enquanto o texto é extraído..."):
