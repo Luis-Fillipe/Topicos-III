@@ -88,7 +88,7 @@ Caso deseje fazer perguntas sobre o artigo disponível, basta clicar no botão "
 
 question = st.text_input("Possui alguma pergunta em mente?")
 
-uploaded_file = st.file_uploader("Escolha um arquivo PDF para servir de contexto para a LLM. Tenha em mente que arquivos muito extensos não serão aceitos.", type="pdf")
+uploaded_file = st.file_uploader("Escolha um arquivo PDF para servir de contexto para a LLM. Tenha em mente que arquivos muito extensos não serão aceitos.", type="pdf", accept_multiple_files=True)
 
 # Processar arquivo enviado e gerar contexto
 uploaded_text = ""
