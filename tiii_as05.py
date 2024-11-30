@@ -31,12 +31,12 @@ def extract_text_from_pdf(file):
     try:
         with open("temp.pdf", "wb") as f2:
             f2.write(file.read())
-        
+        st.write((f"PDF: {file.read()}"))
         reader = PdfReader("temp.pdf")
         for page in reader.pages:
             text += page.extract_text()
     except Exception as e:
-        print(f"Erro ao processar o arquivo PDF: {e}")
+        st.write(f"Erro ao processar o arquivo PDF: {e}")
     return text
 
 documents = []
