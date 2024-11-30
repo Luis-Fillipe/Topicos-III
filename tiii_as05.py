@@ -16,20 +16,22 @@ if not grok_key:
     raise ValueError("API key not found. Please add it to the .env file following the format GROK_KEY=\"your_key_here\".")
 
 # Função para extrair texto de PDFs
-def extract_text_from_pdf(pdf_path):
+def extract_text_from_pdf(file):
     text = ""
     try:
-        reader = PdfReader(pdf_path)
+        with open("temp.pdf", "wb") as f2:
+            f2.write(file.read())
+        
+        reader = PdfReader("temp.pdf")
         for page in reader.pages:
             text += page.extract_text()
     except Exception as e:
-        print(f"Erro ao processar {pdf_path}: {e}")
+        print(f"Erro ao processar o arquivo PDF: {e}")
     return text
+
 documents = []
-text = extract_text_from_pdf('artigo1.pdf')    
-documents.append(text)
-text = extract_text_from_pdf('artigo2.pdf')
-documents.append(text)    
+documents.append(extract_text_from_pdf('artigo1.pdf'))
+documents.append(extract_text_from_pdf('artigo2.pdf'))    
 
 # Função para responder perguntas usando o modelo Gemini
 def answer_question(context, question):
