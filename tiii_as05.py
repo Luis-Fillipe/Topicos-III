@@ -29,7 +29,16 @@ def extract_text_from_pdf(file):
     return text
 
 documents = []
-documents.append(extract_text_from_pdf('artigo1.pdf'))    
+
+# Verificar se os arquivos existem antes de tentar lê-los
+pdf_files = ['artigo1.pdf']
+for pdf_file in pdf_files:
+    pdf_path = os.path.join(base_path, pdf_file)
+    if os.path.exists(pdf_path):
+        documents.append(extract_text_from_pdf(pdf_path))
+    else:
+        print(f"Arquivo {pdf_file} não encontrado.")
+
 
 # Função para responder perguntas usando o modelo Gemini
 def answer_question(context, question):
