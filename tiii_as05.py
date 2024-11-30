@@ -14,6 +14,15 @@ grok_key = os.getenv("GROK_KEY")
 if not grok_key:
     raise ValueError("API key not found. Please add it to the .env file following the format GROK_KEY=\"your_key_here\".")
 
+# Função que recebe o file_path e realiza a leitura do arquivo PDF
+def read_pdf_from_directory(file_path):
+    # Verifica se o arquivo existe no diretório fornecido
+    if os.path.exists(file_path):
+        print(f"Arquivo encontrado: {file_path}")
+        return extract_text_from_pdf(file_path)
+    else:
+        raise FileNotFoundError(f"O arquivo {file_path} não foi encontrado.")
+
 # Função para extrair texto de PDFs
 def extract_text_from_pdf(file):
     text = ""
@@ -30,11 +39,9 @@ def extract_text_from_pdf(file):
 
 documents = []
 
-# Verificar se os arquivos existem antes de tentar lê-los
+file_path = 'artigo1.pdf'
+documents.append(read_pdf_from_directory(file_path))
 
-
-
-# Função para responder perguntas usando o modelo Gemini
 def answer_question(context, question):
     prompt = f"Responda à pergunta descrita após a tag **Pergunta:** com base no texto dentro da tag **Contexto:**\n\n**Contexto:** {context}\n\n**Pergunta:** {question}\n\n**Resposta:**"
     
@@ -90,13 +97,6 @@ if uploaded_file is not None:
         except Exception as e:
             st.error(f"Erro ao extrair texto do PDF: {e}")
             st.stop()
-else:
-    file_path = 'artigo1.pdf'
-    if os.path.exists(file_path):
-        documents.append(extract_text_from_pdf(file_path))
-    else:
-        st.error("Falha ao extrair texto do PDF.")
-        st.stop()
 
 # Definir o contexto com os documentos existentes e o arquivo enviado
 
