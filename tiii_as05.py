@@ -103,7 +103,7 @@ Você pode fazer upload de um ou mais arquivos PDF para fornecer contexto ou faz
 question = st.text_input("Possui alguma pergunta em mente?")
 
 # Se houver uma pergunta e arquivos carregados
-if (question and uploaded_files):
+if (question):
     if st.button("Enviar"):
         with st.spinner("Por favor, aguarde enquanto a resposta é gerada..."):
             try:
