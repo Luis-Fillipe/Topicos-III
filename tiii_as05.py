@@ -20,7 +20,7 @@ def read_pdf_from_directory(file_path):
     if os.path.exists(file_path):
         return extract_text_from_pdf(file_path)
     else:
-        st.error(f"O arquivo {file_path} não foi encontrado.")
+        st.error(f"O arquivo {file_path} não foi encontrado. {e}")
         st.stop()
 
 # Função para extrair texto de PDFs
@@ -45,31 +45,9 @@ def extract_text_from_pdf(file):
 
 documents = []
 
-# Aceitar múltiplos uploads de arquivos PDF
-uploaded_files = st.file_uploader("Escolha um ou mais arquivos PDF para servir de contexto para a LLM.", type="pdf", accept_multiple_files=True)
+file_path = 'artigo1.pdf'
+documents.append(read_pdf_from_directory(file_path))
 
-# Processar cada arquivo enviado e gerar contexto
-uploaded_text = ""
-if uploaded_files:
-    for uploaded_file in uploaded_files:
-        with st.spinner(f"Por favor, aguarde enquanto o texto do arquivo '{uploaded_file.name}' é extraído..."):
-            try:
-                file_text = extract_text_from_pdf(uploaded_file)
-                if file_text:
-                    uploaded_text += file_text + "\n\n"
-                else:
-                    st.error(f"Falha ao extrair texto do arquivo {uploaded_file.name}.")
-                    st.stop()
-            except Exception as e:
-                st.error(f"Erro ao extrair texto do arquivo {uploaded_file.name}: {e}")
-                st.stop()
-
-# Adicionar os documentos existentes ao contexto
-context = "\n".join(documents)
-if uploaded_text:
-    context += uploaded_text
-
-# Função para enviar a pergunta à API
 def answer_question(context, question):
     prompt = f"Responda à pergunta descrita após a tag **Pergunta:** com base no texto dentro da tag **Contexto:**\n\n**Contexto:** {context}\n\n**Pergunta:** {question}\n\n**Resposta:**"
     
@@ -83,7 +61,7 @@ def answer_question(context, question):
             "model": "llama3-8b-8192",
             "messages": [{
                 "role": "system",
-                "content": "Assistente conversacional para responder perguntas baseadas em um contexto. É necessário que ao finalizar uma pergunta, se disponha a responder mais alguma pergunta sobre algum novo PDF ou sobre o pdf que foi feito o upload."
+                "content": "Assistente conversacional para responder perguntas baseadas em um contexto. É necessário que ao finalizar uma pergunte, se disponha a responder mais alguma pergunta sobre algum novo PDF ou sobre o pdf que foi feito o upload."
             },
             {
                 "role": "user",
@@ -93,17 +71,45 @@ def answer_question(context, question):
     )
     return response.json()["choices"][0]["message"]["content"]
 
-# Exibição da interface
 st.title("Assistente Conversacional PDFbot")
 st.write("""
 Bem-vindo ao PDFbot! Este assistente conversacional responde perguntas com base no contexto fornecido por um arquivo PDF. 
-Você pode fazer upload de um ou mais arquivos PDF para fornecer contexto ou fazer perguntas diretamente sobre os artigos disponíveis.
+Em nossa base de dados, temos um artigo em PDF sobre Modelos de Linguagem de Grande Escala (LLMs). 
+Você pode fazer upload de um arquivo PDF para fornecer um contexto ou fazer perguntas diretamente sobre os artigos disponíveis.
+""")
+st.write("""
+Os artigos disponíveis são:
+1. Diversidade Linguística e Inclusão Digital: Desafios para uma IA brasileira
+""")
+
+st.write("""
+Caso deseje fazer perguntas sobre o artigo disponível, basta clicar no botão "Enviar" sem fazer upload de um arquivo PDF.
 """)
 
 question = st.text_input("Possui alguma pergunta em mente?")
 
-# Se houver uma pergunta e arquivos carregados
-if (question):
+uploaded_file = st.file_uploader("Escolha um arquivo PDF para servir de contexto para a LLM. Tenha em mente que arquivos muito extensos não serão aceitos.", type="pdf")
+
+# Processar arquivo enviado e gerar contexto
+uploaded_text = ""
+if uploaded_file is not None:
+    with st.spinner("Por favor, aguarde enquanto o texto é extraído..."):
+        try:
+            uploaded_text = extract_text_from_pdf(uploaded_file)
+            if not uploaded_text:
+                st.error("Falha ao extrair texto do PDF.")
+                st.stop()
+        except Exception as e:
+            st.error(f"Erro ao extrair texto do PDF: {e}")
+            st.stop()
+
+# Definir o contexto com os documentos existentes e o arquivo enviado
+
+context = "\n".join(documents)
+if uploaded_file is not None:
+    context += "\n" + uploaded_text
+
+if (question is not None):
     if st.button("Enviar"):
         with st.spinner("Por favor, aguarde enquanto a resposta é gerada..."):
             try:
