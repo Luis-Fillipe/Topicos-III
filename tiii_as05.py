@@ -30,8 +30,7 @@ def extract_text_from_pdf(file):
     return text
 
 documents = []
-documents.append(extract_text_from_pdf('artigo1.pdf'))
-documents.append(extract_text_from_pdf('artigo2.pdf'))    
+documents.append(extract_text_from_pdf('artigo1.pdf'))    
 
 # Função para responder perguntas usando o modelo Gemini
 def answer_question(context, question):
@@ -69,14 +68,14 @@ Os artigos disponíveis são:
 """)
 
 st.write("""
-Caso deseje fazer perguntas sobre um dos artigos disponíveis, basta clicar no botão "Enviar" sem fazer upload de um arquivo PDF.
+Caso deseje fazer perguntas sobre o artigo disponível, basta clicar no botão "Enviar" sem fazer upload de um arquivo PDF.
 """)
 
 question = st.text_input("Possui alguma pergunta em mente?")
 
 uploaded_file = st.file_uploader("Escolha um arquivo PDF para servir de contexto para a LLM. Tenha em mente que arquivos muito extensos não serão aceitos.", type="pdf")
 
-if (question is not none):
+if (question is not None):
     if st.button("Enviar"):
         with st.spinner("Por favor, aguarde enquanto a resposta é gerada..."):
             try:
