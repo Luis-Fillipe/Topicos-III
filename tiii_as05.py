@@ -1,5 +1,4 @@
 import streamlit as st
-from langchain_community.document_loaders import PyPDFLoader
 import requests
 import os
 from dotenv import load_dotenv
@@ -17,6 +16,9 @@ def main():
 
     if not grok_key:
         raise ValueError("API key not found. Please add it to the .env file following the format GROK_KEY=\"your_key_here\".")
+
+    # Diretório para armazenar os artigos
+    os.makedirs("arxiv_pdfs", exist_ok=True)
 
     # Função para buscar e baixar artigos no arXiv
     def fetch_arxiv_articles(query, max_results=5):
