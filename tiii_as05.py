@@ -9,13 +9,6 @@ from PyPDF2 import PdfReader
 base_path = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(base_path, '.env'))
 
-print(f"Caminho base: {base_path}")
-print(f"Arquivo .env localizado em: {os.path.join(base_path, '.env')}")
-
-# Verificar se a variável foi carregada
-grok_key = os.getenv("GROK_KEY")
-print(f"GROK_KEY carregada: {grok_key}")
-
 # Obter a chave da API
 grok_key = os.getenv("GROK_KEY")
 
@@ -103,57 +96,57 @@ Os artigos disponíveis são:
 """)
 
 # Campo de entrada de texto com ícone de clipe para anexar PDF
-    st.markdown("""
-    <style>
-    .input-container {
-        display: flex;
-        align-items: center;
-    }
-    .input-container input[type="text"] {
-        flex: 1;
-        padding: 8px;
-    }
-    .input-container input[type="file"] {
-        display: none;
-    }
-    .input-container label {
-        margin-left: 8px;
-        cursor: pointer;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+st.markdown("""
+<style>
+.input-container {
+    display: flex;
+    align-items: center;
+}
+.input-container input[type="text"] {
+    flex: 1;
+    padding: 8px;
+}
+.input-container input[type="file"] {
+    display: none;
+}
+.input-container label {
+    margin-left: 8px;
+    cursor: pointer;
+}
+</style>
+""", unsafe_allow_html=True)
 
-    question = st.text_input("Possui alguma pergunta em mente?")
-    st.markdown("""
-    <div class="input-container">
-        <input type="text" id="question" placeholder="Possui alguma pergunta em mente?">
-        <label for="file-upload">
-            <img src="https://img.icons8.com/material-outlined/24/000000/attach.png"/>
-        </label>
-        <input type="file" id="file-upload" accept="application/pdf">
-    </div>
-    """, unsafe_allow_html=True)
+question = st.text_input("Possui alguma pergunta em mente?")
+st.markdown("""
+<div class="input-container">
+    <input type="text" id="question" placeholder="Possui alguma pergunta em mente?">
+    <label for="file-upload">
+        <img src="https://img.icons8.com/material-outlined/24/000000/attach.png"/>
+    </label>
+    <input type="file" id="file-upload" accept="application/pdf">
+</div>
+""", unsafe_allow_html=True)
 
-    uploaded_file = st.file_uploader("Escolha um arquivo PDF para servir de contexto para a LLM. Tenha em mente que arquivos muito extensos não serão aceitos.", type="pdf")
+uploaded_file = st.file_uploader("Escolha um arquivo PDF para servir de contexto para a LLM. Tenha em mente que arquivos muito extensos não serão aceitos.", type="pdf")
 
-    if uploaded_file is not None:
-        with st.spinner("Por favor, aguarde enquanto o texto é extraído..."):
-            try:
-                uploaded_text = extract_text_from_pdf(uploaded_file)
-                if not uploaded_text:
-                    st.error("Falha ao extrair texto do PDF.")
-                    return
-            except Exception as e:
-                st.error(f"Erro ao extrair texto do PDF: {e}")
+if uploaded_file is not None:
+    with st.spinner("Por favor, aguarde enquanto o texto é extraído..."):
+        try:
+            uploaded_text = extract_text_from_pdf(uploaded_file)
+            if not uploaded_text:
+                st.error("Falha ao extrair texto do PDF.")
                 return
+        except Exception as e:
+            st.error(f"Erro ao extrair texto do PDF: {e}")
+            return
 
-        # Concatenar textos dos PDFs baixados e do PDF enviado pelo usuário
-        context = "\n".join(documents) + "\n" + uploaded_text
+    # Concatenar textos dos PDFs baixados e do PDF enviado pelo usuário
+    context = "\n".join(documents) + "\n" + uploaded_text
 
-        if st.button("Enviar"):
-            with st.spinner("Por favor, aguarde enquanto a resposta é gerada..."):
-                try:
-                    answer = answer_question(context, question)
-                    st.write(answer)
-                except Exception as e:
-                    st.error(f"Erro ao gerar resposta: {e}")
+    if st.button("Enviar"):
+        with st.spinner("Por favor, aguarde enquanto a resposta é gerada..."):
+            try:
+                answer = answer_question(context, question)
+                st.write(answer)
+            except Exception as e:
+                st.error(f"Erro ao gerar resposta: {e}")
