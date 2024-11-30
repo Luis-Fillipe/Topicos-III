@@ -88,7 +88,9 @@ if uploaded_file is not None:
             st.stop()
 
 # Definir o contexto com os documentos existentes e o arquivo enviado
+
 context = "\n".join(documents)
+st.write(f"context: {context}")
 if uploaded_file is not None:
     context += "\n" + uploaded_text
 
@@ -96,7 +98,7 @@ if (question is not None):
     if st.button("Enviar"):
         with st.spinner("Por favor, aguarde enquanto a resposta é gerada..."):
             try:
-                print(question)
+                st.write(f"Pergunta enviada: {question}")
                 answer = answer_question(context, question)
                 st.write(answer)
             except Exception as e:
