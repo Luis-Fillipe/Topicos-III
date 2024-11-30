@@ -32,7 +32,7 @@ def fetch_arxiv_articles(query, max_results=5):
     for result in search.results():
         title = result.title.replace(" ", "_").replace("/", "_")
         pdf_path = os.path.join("arxiv_pdfs", f"{title}.pdf")
-        print(f"Baixando: {result.title}")
+        print(f"Baixando: {title}")
         response = requests.get(result.pdf_url)
         if response.status_code == 200:
             with open(pdf_path, "wb") as f:
@@ -66,7 +66,7 @@ print("Artigos baixados, processados e indexados com sucesso!")
 # Função para responder perguntas usando o modelo Gemini
 def answer_question(context, question):
     prompt = f"Responda à pergunta descrita após a tag **Pergunta:** com base no texto dentro da tag **Contexto:**\n\n**Contexto:** {context}\n\n**Pergunta:** {question}\n\n**Resposta:**"
-    
+    print("DENTRO DO answer_question")
     response = requests.post(
         "https://api.groq.com/openai/v1/chat/completions",
         headers={
@@ -85,6 +85,7 @@ def answer_question(context, question):
             }]
         }
     )
+    
     print(response)
     return response.json()["choices"][0]["message"]["content"]
 
