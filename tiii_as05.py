@@ -9,6 +9,13 @@ from PyPDF2 import PdfReader
 base_path = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(base_path, '.env'))
 
+print(f"Caminho base: {base_path}")
+print(f"Arquivo .env localizado em: {os.path.join(base_path, '.env')}")
+
+# Verificar se a variável foi carregada
+grok_key = os.getenv("GROK_KEY")
+print(f"GROK_KEY carregada: {grok_key}")
+
 # Obter a chave da API
 grok_key = os.getenv("GROK_KEY")
 
