@@ -2,25 +2,35 @@ import streamlit as st
 from langchain_community.document_loaders import PyPDFLoader
 import requests
 import os
+from dotenv import load_dotenv
 import arxiv
 
 # Diretório para armazenar os artigos
 os.makedirs("arxiv_pdfs", exist_ok=True)
 
-# Função para buscar e baixar artigos no arXiv
-def fetch_arxiv_articles(query, max_results=5):
-    search = arxiv.Search(
-        query=query,
-        max_results=max_results,
-        sort_by=arxiv.SortCriterion.Relevance,
-    )
-    for result in search.results():
-        title = result.title.replace(" ", "_").replace("/", "_")
-        pdf_path = os.path.join("arxiv_pdfs", f"{title}.pdf")
-        print(f"Baixando: {result.title}")
-        response = requests.get(result.pdf_url)
-        with open(pdf_path, "wb") as f:
-            f.write(response.content)
+# Carregar variáveis de ambiente do arquivo .env
+load_dotenv(os.path.join(base_path, '.env'))
+
+# Obter a chave da API
+grok_key = os.getenv("GROK_KEY")
+
+if not grok_key:
+    raise ValueError("API key not found. Please add it to the .env file following the format GROK_KEY=\"your_key_here\".")
+
+    # Função para buscar e baixar artigos no arXiv
+    def fetch_arxiv_articles(query, max_results=5):
+        search = arxiv.Search(
+            query=query,
+            max_results=max_results,
+            sort_by=arxiv.SortCriterion.Relevance,
+        )
+        for result in search.results():
+            title = result.title.replace(" ", "_").replace("/", "_")
+            pdf_path = os.path.join("arxiv_pdfs", f"{title}.pdf")
+            print(f"Baixando: {result.title}")
+            response = requests.get(result.pdf_url)
+            with open(pdf_path, "wb") as f:
+                f.write(response.content)
 
 # Função para extrair texto de PDFs
 def extract_text_from_pdf(pdf_path):
@@ -92,7 +102,7 @@ uploaded_file = st.file_uploader("Escolha um arquivo PDF para servir de contexto
     if uploaded_file is not None:
         with st.spinner("Por favor, aguarde enquanto o texto é extraído..."):
             try:
-                text = pdf_to_txt(uploaded_file)
+                text = extract_text_from_pdf(uploaded_file)
                 if not text:
                     st.error("Falha ao extrair texto do PDF.")
                     return
@@ -105,7 +115,7 @@ uploaded_file = st.file_uploader("Escolha um arquivo PDF para servir de contexto
         if st.button("Enviar"):
             with st.spinner("Por favor, aguarde enquanto a resposta é gerada..."):
                 try:
-                    answer = ask_question(text, question)
+                    answer = answer_question(text, question)
                     st.write(answer)
                 except Exception as e:
                     st.error(f"Erro ao gerar resposta: {e}")
