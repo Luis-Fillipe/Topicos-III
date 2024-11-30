@@ -36,7 +36,8 @@ file_path = 'artigo1.pdf'
 if os.path.exists(file_path):
     documents.append(extract_text_from_pdf(file_path))
 else:
-    st.write(f"Erro: O arquivo {file_path} não foi encontrado.")
+    st.error("Falha ao extrair texto do PDF.")
+    st.stop()
 
 
 # Função para responder perguntas usando o modelo Gemini
