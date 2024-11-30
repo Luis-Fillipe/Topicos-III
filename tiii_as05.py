@@ -20,19 +20,25 @@ os.makedirs("arxiv_pdfs", exist_ok=True)
 
 # Função para buscar e baixar artigos no arXiv
 def fetch_arxiv_articles(query, max_results=5):
-    client = arxiv.Client(
-        page_size=max_results,
+    search = arxiv.Search(
+        query=query,
+        max_results=max_results,
         sort_by=arxiv.SortCriterion.Relevance
     )
-    search = client.results(query=query)
 
-    for result in search:
+    # Diretório para salvar PDFs
+    os.makedirs("arxiv_pdfs", exist_ok=True)
+
+    for result in search.results():
         title = result.title.replace(" ", "_").replace("/", "_")
         pdf_path = os.path.join("arxiv_pdfs", f"{title}.pdf")
         print(f"Baixando: {result.title}")
         response = requests.get(result.pdf_url)
-        with open(pdf_path, "wb") as f:
-            f.write(response.content)
+        if response.status_code == 200:
+            with open(pdf_path, "wb") as f:
+                f.write(response.content)
+        else:
+            print(f"Erro ao baixar {result.title}: Status {response.status_code}")
 
 # Função para extrair texto de PDFs
 def extract_text_from_pdf(pdf_path):
