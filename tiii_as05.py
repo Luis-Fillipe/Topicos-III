@@ -26,6 +26,11 @@ def extract_text_from_pdf(pdf_path):
         print(f"Erro ao processar {pdf_path}: {e}")
     return text
 
+text = extract_text_from_pdf('artigo1.pdf')    
+documents.append(text)
+text = extract_text_from_pdf('artigo2.pdf')
+documents.append(text)    
+
 # Função para responder perguntas usando o modelo Gemini
 def answer_question(context, question):
     prompt = f"Responda à pergunta descrita após a tag **Pergunta:** com base no texto dentro da tag **Contexto:**\n\n**Contexto:** {context}\n\n**Pergunta:** {question}\n\n**Resposta:**"
@@ -59,10 +64,7 @@ Você pode fazer upload de um arquivo PDF para fornecer um contexto ou fazer per
 st.write("""
 Os artigos disponíveis são:
 1. Lost in Translation: Large Language Models in Non-English Content Analysis
-2. Cedille: A large autoregressive French language model
-3. How Good are Commercial Large Language Models on African Languages?
-4. Goldfish: Monolingual Language Models for 350 Languages
-5. Modelling Language
+2. Diversidade Linguística e Inclusão Digital: Desafios para uma IA brasileira
 """)
 
 question = st.text_input("Possui alguma pergunta em mente?")
