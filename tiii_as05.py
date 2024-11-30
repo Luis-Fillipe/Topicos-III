@@ -43,7 +43,10 @@ documents = []
 
 file_path = 'artigo1.pdf'
 documents.append(read_pdf_from_directory(file_path))
-st.write(f"Arquivo encontrado: {documents[0]}")
+# Exibir todo o conteúdo de documents
+for i, doc in enumerate(documents):
+    st.write(f"Conteúdo do documento {i+1}:")
+    st.write(doc)
 
 def answer_question(context, question):
     prompt = f"Responda à pergunta descrita após a tag **Pergunta:** com base no texto dentro da tag **Contexto:**\n\n**Contexto:** {context}\n\n**Pergunta:** {question}\n\n**Resposta:**"
