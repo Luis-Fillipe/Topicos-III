@@ -80,6 +80,11 @@ if (question is not None):
         with st.spinner("Por favor, aguarde enquanto a resposta é gerada..."):
             try:
                 print(question)
+                if uploaded_file is not None:
+                    uploaded_text = extract_text_from_pdf(uploaded_file)
+                    context = "\n".join(documents) + "\n" + uploaded_text
+                else:
+                    context = "\n".join(documents)
                 answer = answer_question(context, question)
                 st.write(answer)
             except Exception as e:
@@ -96,8 +101,3 @@ if uploaded_file is not None:
         except Exception as e:
             st.error(f"Erro ao extrair texto do PDF: {e}")
             st.stop()
-
-    # Concatenar textos dos PDFs baixados e do PDF enviado pelo usuário
-    context = "\n".join(documents) + "\n" + uploaded_text
-
-    
