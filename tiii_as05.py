@@ -31,13 +31,7 @@ def extract_text_from_pdf(file):
 documents = []
 
 # Verificar se os arquivos existem antes de tentar lê-los
-file_path = 'artigo1.pdf'
 
-if os.path.exists(file_path):
-    documents.append(extract_text_from_pdf(file_path))
-else:
-    st.error("Falha ao extrair texto do PDF.")
-    st.stop()
 
 
 # Função para responder perguntas usando o modelo Gemini
@@ -95,6 +89,13 @@ if uploaded_file is not None:
         except Exception as e:
             st.error(f"Erro ao extrair texto do PDF: {e}")
             st.stop()
+else:
+    file_path = 'artigo1.pdf'
+    if os.path.exists(file_path):
+        documents.append(extract_text_from_pdf(file_path))
+    else:
+        st.error("Falha ao extrair texto do PDF.")
+        st.stop()
 
 # Definir o contexto com os documentos existentes e o arquivo enviado
 
