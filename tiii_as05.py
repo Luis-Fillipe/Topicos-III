@@ -29,14 +29,20 @@ def read_pdf_from_directory(file_path):
 def extract_text_from_pdf(file):
     text = ""
     try:
-        with open("temp.pdf", "wb") as f2:
-            f2.write(file.read())
-        st.write((f"PDF: {file.read()}"))
-        reader = PdfReader("temp.pdf")
+        # Se o arquivo for um UploadedFile do Streamlit, deve-se salvá-lo primeiro
+        if isinstance(file, bytes):  # Caso o arquivo seja em formato bytes (upload via Streamlit)
+            with open("temp.pdf", "wb") as f2:
+                f2.write(file)
+            file_path = "temp.pdf"
+        else:
+            file_path = file  # Caso seja um arquivo já no diretório
+
+        # Ler o arquivo PDF
+        reader = PdfReader(file_path)
         for page in reader.pages:
             text += page.extract_text()
     except Exception as e:
-        st.write(f"Erro ao processar o arquivo PDF: {e}")
+        print(f"Erro ao processar o arquivo PDF: {e}")
     return text
 
 documents = []
