@@ -20,7 +20,7 @@ def read_pdf_from_directory(file_path):
     if os.path.exists(file_path):
         return extract_text_from_pdf(file_path)
     else:
-        st.error(f"O arquivo {file_path} não foi encontrado.")
+        st.error(f"O arquivo {file_path} não foi encontrado. {e}")
         st.stop()
 
 # Função para extrair texto de PDFs
@@ -88,30 +88,28 @@ Caso deseje fazer perguntas sobre o artigo disponível, basta clicar no botão "
 
 question = st.text_input("Possui alguma pergunta em mente?")
 
-uploaded_files = st.file_uploader("Escolha arquivos PDF para servir de contexto para a LLM. Tenha em mente que arquivos muito extensos não serão aceitos.", type="pdf", accept_multiple_files=True)
+uploaded_file = st.file_uploader("Escolha um arquivo PDF para servir de contexto para a LLM. Tenha em mente que arquivos muito extensos não serão aceitos.", type="pdf")
 
-# Processar arquivos enviados e gerar contexto
-uploaded_texts = []
-if uploaded_files is not None:
+# Processar arquivo enviado e gerar contexto
+uploaded_text = ""
+if uploaded_file is not None:
     with st.spinner("Por favor, aguarde enquanto o texto é extraído..."):
         try:
-            for uploaded_file in uploaded_files:
-                uploaded_text = extract_text_from_pdf(uploaded_file)
-                if uploaded_text:
-                    uploaded_texts.append(uploaded_text)
-                else:
-                    st.error(f"Falha ao extrair texto do PDF: {uploaded_file.name}")
-                    st.stop()
+            uploaded_text = extract_text_from_pdf(uploaded_file)
+            if not uploaded_text:
+                st.error("Falha ao extrair texto do PDF.")
+                st.stop()
         except Exception as e:
             st.error(f"Erro ao extrair texto do PDF: {e}")
             st.stop()
 
-# Definir o contexto com os documentos existentes e os arquivos enviados
-context = "\n".join(documents)
-if uploaded_texts:
-    context += "\n" + "\n".join(uploaded_texts)
+# Definir o contexto com os documentos existentes e o arquivo enviado
 
-if question:
+context = "\n".join(documents)
+if uploaded_file is not None:
+    context += "\n" + uploaded_text
+
+if (question is not None):
     if st.button("Enviar"):
         with st.spinner("Por favor, aguarde enquanto a resposta é gerada..."):
             try:
