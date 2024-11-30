@@ -20,12 +20,13 @@ os.makedirs("arxiv_pdfs", exist_ok=True)
 
 # Função para buscar e baixar artigos no arXiv
 def fetch_arxiv_articles(query, max_results=5):
-    search = arxiv.Search(
-        query=query,
-        max_results=max_results,
-        sort_by=arxiv.SortCriterion.Relevance,
+    client = arxiv.Client(
+        page_size=max_results,
+        sort_by=arxiv.SortCriterion.Relevance
     )
-    for result in search.results():
+    search = client.results(query=query)
+
+    for result in search:
         title = result.title.replace(" ", "_").replace("/", "_")
         pdf_path = os.path.join("arxiv_pdfs", f"{title}.pdf")
         print(f"Baixando: {result.title}")
@@ -78,6 +79,7 @@ def answer_question(context, question):
             }]
         }
     )
+    print(response)
     return response.json()["choices"][0]["message"]["content"]
 
 st.title("Assistente Conversacional PDFbot")
@@ -95,9 +97,9 @@ Os artigos disponíveis são:
 5. Modelling Language
 """)
 
-question = st.text_input("Possui alguma pergunta em mente?")
-
 uploaded_file = st.file_uploader("Escolha um arquivo PDF para servir de contexto para a LLM. Tenha em mente que arquivos muito extensos não serão aceitos.", type="pdf")
+
+question = st.text_input("Possui alguma pergunta em mente?")
 
 if uploaded_file is not None:
     with st.spinner("Por favor, aguarde enquanto o texto é extraído..."):
