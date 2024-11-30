@@ -25,7 +25,7 @@ def extract_text_from_pdf(pdf_path):
     except Exception as e:
         print(f"Erro ao processar {pdf_path}: {e}")
     return text
-
+documents = []
 text = extract_text_from_pdf('artigo1.pdf')    
 documents.append(text)
 text = extract_text_from_pdf('artigo2.pdf')
