@@ -16,13 +16,11 @@ if not grok_key:
 
 # Função que recebe o file_path e realiza a leitura do arquivo PDF
 def read_pdf_from_directory(file_path):
-    st.write(f"read_pdf_from_directory: {file_path}")
     # Verifica se o arquivo existe no diretório fornecido
     if os.path.exists(file_path):
-        st.write(f"Arquivo encontrado: {file_path}")
         return extract_text_from_pdf(file_path)
     else:
-        st.error(f"O arquivo {file_path} não foi encontrado. {e}")
+        st.error(f"O arquivo {file_path} não foi encontrado.")
         st.stop()
 
 # Função para extrair texto de PDFs
@@ -42,17 +40,13 @@ def extract_text_from_pdf(file):
         for page in reader.pages:
             text += page.extract_text()
     except Exception as e:
-        print(f"Erro ao processar o arquivo PDF: {e}")
+        st.error(f"Erro ao processar o arquivo PDF: {e}")
     return text
 
 documents = []
 
 file_path = 'artigo1.pdf'
 documents.append(read_pdf_from_directory(file_path))
-# Exibir todo o conteúdo de documents
-for i, doc in enumerate(documents):
-    st.write(f"Conteúdo do documento {i+1}:")
-    st.write(doc)
 
 def answer_question(context, question):
     prompt = f"Responda à pergunta descrita após a tag **Pergunta:** com base no texto dentro da tag **Contexto:**\n\n**Contexto:** {context}\n\n**Pergunta:** {question}\n\n**Resposta:**"
@@ -94,35 +88,33 @@ Caso deseje fazer perguntas sobre o artigo disponível, basta clicar no botão "
 
 question = st.text_input("Possui alguma pergunta em mente?")
 
-uploaded_file = st.file_uploader("Escolha um arquivo PDF para servir de contexto para a LLM. Tenha em mente que arquivos muito extensos não serão aceitos.", type="pdf")
+uploaded_files = st.file_uploader("Escolha arquivos PDF para servir de contexto para a LLM. Tenha em mente que arquivos muito extensos não serão aceitos.", type="pdf", accept_multiple_files=True)
 
-# Processar arquivo enviado e gerar contexto
-uploaded_text = ""
-if uploaded_file is not None:
-    st.write(f"file: {uploaded_file}")
+# Processar arquivos enviados e gerar contexto
+uploaded_texts = []
+if uploaded_files is not None:
     with st.spinner("Por favor, aguarde enquanto o texto é extraído..."):
         try:
-            uploaded_text = extract_text_from_pdf(uploaded_file)
-            if not uploaded_text:
-                st.error("Falha ao extrair texto do PDF.")
-                st.stop()
+            for uploaded_file in uploaded_files:
+                uploaded_text = extract_text_from_pdf(uploaded_file)
+                if uploaded_text:
+                    uploaded_texts.append(uploaded_text)
+                else:
+                    st.error(f"Falha ao extrair texto do PDF: {uploaded_file.name}")
+                    st.stop()
         except Exception as e:
             st.error(f"Erro ao extrair texto do PDF: {e}")
             st.stop()
 
-# Definir o contexto com os documentos existentes e o arquivo enviado
-
+# Definir o contexto com os documentos existentes e os arquivos enviados
 context = "\n".join(documents)
-st.write(f"context: {context}")
-if uploaded_file is not None:
-    context += "\n" + uploaded_text
+if uploaded_texts:
+    context += "\n" + "\n".join(uploaded_texts)
 
-if (question is not None):
+if question:
     if st.button("Enviar"):
         with st.spinner("Por favor, aguarde enquanto a resposta é gerada..."):
             try:
-                st.write(f"Pergunta enviada: {question}")
-                st.write(f"context enviada: {context}")
                 answer = answer_question(context, question)
                 st.write(answer)
             except Exception as e:
