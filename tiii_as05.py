@@ -78,7 +78,6 @@ def answer_question(context, question):
             }]
         }
     )
-    print(response.json())
     return response.json()["choices"][0]["message"]["content"]
 
 st.title("Assistente Conversacional PDFbot")
@@ -105,10 +104,10 @@ if uploaded_file is not None:
             uploaded_text = extract_text_from_pdf(uploaded_file)
             if not uploaded_text:
                 st.error("Falha ao extrair texto do PDF.")
-                return
+                st.stop()
         except Exception as e:
             st.error(f"Erro ao extrair texto do PDF: {e}")
-            return
+            st.stop()
 
     # Concatenar textos dos PDFs baixados e do PDF enviado pelo usuário
     context = "\n".join(documents) + "\n" + uploaded_text
