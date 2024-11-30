@@ -99,23 +99,23 @@ Os artigos disponíveis são:
 
 uploaded_file = st.file_uploader("Escolha um arquivo PDF para servir de contexto para a LLM. Tenha em mente que arquivos muito extensos não serão aceitos.", type="pdf")
 
-    if uploaded_file is not None:
-        with st.spinner("Por favor, aguarde enquanto o texto é extraído..."):
-            try:
-                text = extract_text_from_pdf(uploaded_file)
-                if not text:
-                    st.error("Falha ao extrair texto do PDF.")
-                    return
-            except Exception as e:
-                st.error(f"Erro ao extrair texto do PDF: {e}")
+if uploaded_file is not None:
+    with st.spinner("Por favor, aguarde enquanto o texto é extraído..."):
+        try:
+            text = extract_text_from_pdf(uploaded_file)
+            if not text:
+                st.error("Falha ao extrair texto do PDF.")
                 return
+        except Exception as e:
+            st.error(f"Erro ao extrair texto do PDF: {e}")
+            return
 
-        question = st.text_input("Possui alguma pergunta em mente?")
+    question = st.text_input("Possui alguma pergunta em mente?")
 
-        if st.button("Enviar"):
-            with st.spinner("Por favor, aguarde enquanto a resposta é gerada..."):
-                try:
-                    answer = answer_question(text, question)
-                    st.write(answer)
-                except Exception as e:
-                    st.error(f"Erro ao gerar resposta: {e}")
+    if st.button("Enviar"):
+        with st.spinner("Por favor, aguarde enquanto a resposta é gerada..."):
+            try:
+                answer = answer_question(text, question)
+                st.write(answer)
+            except Exception as e:
+                st.error(f"Erro ao gerar resposta: {e}")
