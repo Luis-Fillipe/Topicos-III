@@ -60,19 +60,32 @@ def answer_question(context, question):
 st.title("Assistente Conversacional PDFbot")
 st.write("""
 Bem-vindo ao PDFbot! Este assistente conversacional responde perguntas com base no contexto fornecido por um arquivo PDF. 
-Em nossa base de dados, temos 5 artigos em PDF sobre Modelos de Linguagem de Grande Escala (LLMs). 
+Em nossa base de dados, temos um artigo em PDF sobre Modelos de Linguagem de Grande Escala (LLMs). 
 Você pode fazer upload de um arquivo PDF para fornecer um contexto ou fazer perguntas diretamente sobre os artigos disponíveis.
 """)
 st.write("""
 Os artigos disponíveis são:
-1. Lost in Translation: Large Language Models in Non-English Content Analysis
-2. Diversidade Linguística e Inclusão Digital: Desafios para uma IA brasileira
+1. Diversidade Linguística e Inclusão Digital: Desafios para uma IA brasileira
+""")
+
+st.write("""
+Caso deseje fazer perguntas sobre um dos artigos disponíveis, basta clicar no botão "Enviar" sem fazer upload de um arquivo PDF.
 """)
 
 question = st.text_input("Possui alguma pergunta em mente?")
 
 uploaded_file = st.file_uploader("Escolha um arquivo PDF para servir de contexto para a LLM. Tenha em mente que arquivos muito extensos não serão aceitos.", type="pdf")
 
+if (question is not none):
+    if st.button("Enviar"):
+        with st.spinner("Por favor, aguarde enquanto a resposta é gerada..."):
+            try:
+                print(question)
+                answer = answer_question(context, question)
+                st.write(answer)
+            except Exception as e:
+                st.error(f"Erro ao gerar resposta: {e}")
+                
 if uploaded_file is not None:
     with st.spinner("Por favor, aguarde enquanto o texto é extraído..."):
         try:
@@ -88,11 +101,4 @@ if uploaded_file is not None:
     # Concatenar textos dos PDFs baixados e do PDF enviado pelo usuário
     context = "\n".join(documents) + "\n" + uploaded_text
 
-    if st.button("Enviar"):
-        with st.spinner("Por favor, aguarde enquanto a resposta é gerada..."):
-            try:
-                print(question)
-                answer = answer_question(context, question)
-                st.write(answer)
-            except Exception as e:
-                st.error(f"Erro ao gerar resposta: {e}")
+    
