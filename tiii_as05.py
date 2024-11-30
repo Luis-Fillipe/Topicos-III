@@ -98,10 +98,7 @@ Você pode fazer upload de um arquivo PDF para fornecer um contexto ou fazer per
 st.write("""
 Os artigos disponíveis são:
 1. Lost in Translation: Large Language Models in Non-English Content Analysis
-2. Cedille: A large autoregressive French language model
-3. How Good are Commercial Large Language Models on African Languages?
-4. Goldfish: Monolingual Language Models for 350 Languages
-5. Modelling Language
+2. Diversidade Linguística e Inclusão Digital: Desafios para uma IA brasileira
 """)
 
 uploaded_file = st.file_uploader("Escolha um arquivo PDF para servir de contexto para a LLM. Tenha em mente que arquivos muito extensos não serão aceitos.", type="pdf")
