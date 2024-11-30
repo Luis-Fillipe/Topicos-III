@@ -108,6 +108,7 @@ if (question is not None):
         with st.spinner("Por favor, aguarde enquanto a resposta é gerada..."):
             try:
                 st.write(f"Pergunta enviada: {question}")
+                st.write(f"context enviada: {context}")
                 answer = answer_question(context, question)
                 st.write(answer)
             except Exception as e:
