@@ -81,7 +81,6 @@ if (question is not None):
             try:
                 print(question)
                 if uploaded_file is not None:
-                    uploaded_text = extract_text_from_pdf(uploaded_file)
                     context = "\n".join(documents) + "\n" + uploaded_text
                 else:
                     context = "\n".join(documents)
